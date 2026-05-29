@@ -1,6 +1,8 @@
 # Prueba Técnica QA — Reto Devsu
 
-**Autor:** [Alejandro Caro Gómez](https://github.com/Alejocaro)  
+**Autor:** [Alejandro Caro Gómez](https://www.linkedin.com/in/alejandrocarogomez/)  
+**LinkedIn:** [alejandrocarogomez](https://www.linkedin.com/in/alejandrocarogomez/)  
+**GitHub:** [@Alejocaro](https://github.com/Alejocaro)  
 **Repositorio:** [Reto_tecnico_-Devsu](https://github.com/Alejocaro/Reto_tecnico_-Devsu)
 
 Automatización E2E y API con Cypress sobre [demoblaze.com](https://www.demoblaze.com), siguiendo buenas prácticas de proyecto (POM + comandos reutilizables + fixtures + reporter).  
@@ -150,4 +152,5 @@ Reto_tecnico_-Devsu/
 ## Autor
 
 **Alejandro Caro Gómez** — QA Automation Engineer  
+LinkedIn: [alejandrocarogomez](https://www.linkedin.com/in/alejandrocarogomez/)  
 GitHub: [@Alejocaro](https://github.com/Alejocaro)
