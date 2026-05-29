@@ -1,0 +1,141 @@
+====================================================================
+CONCLUSIONES - AUTOMATIZACIÓN E2E + API DEMOBLAZE
+====================================================================
+
+FRAMEWORK UTILIZADO
+-------------------
+Cypress 13.x — elegido por:
+  • Soporte nativo para SPAs y apps con carga asíncrona (AJAX).
+  • Manejo automático de window.alert() sin configuración extra.
+  • Debugging visual en tiempo real con el Test Runner.
+  • Gran ecosistema y documentación activa.
+
+====================================================================
+HALLAZGOS DEL FLUJO DE COMPRA
+====================================================================
+
+1. CONFIRMACIÓN DE CARRITO VÍA ALERT NATIVO
+   - Al hacer clic en "Add to cart", la aplicación dispara window.alert()
+     con el texto "Product added" (sin punto final).
+   - También se validó el alert negativo del checkout vacío:
+     "Please fill out Name and Creditcard.".
+   - Cypress descarta estos alerts automáticamente; se usa
+     cy.on('window:alert') para validar ambos mensajes esperados.
+
+2. LA APP ES UNA SPA (Single Page Application)
+   - El contenido del catálogo se carga vía AJAX; el HTML inicial está vacío.
+   - Se requiere esperar a que .card-title a tenga elementos antes de interactuar
+     (waitForProducts). Sin esta espera, el test falla intermitentemente.
+
+3. CARRITO PERSISTE EN LA SESIÓN
+   - Los productos añadidos permanecen en el carrito durante toda la sesión
+     del navegador sin necesidad de autenticación.
+   - Esto facilita el flujo de test pero también es un riesgo de seguridad:
+     cualquier usuario puede completar una compra sin cuenta.
+
+4. FORMULARIO DE PAGO SIN VALIDACIÓN
+   - El modal "Place Order" acepta cualquier valor en todos los campos:
+     número de tarjeta, mes, año, etc.
+   - No hay validación de formato ni longitud → riesgo funcional evidente.
+   - El ID de orden en la confirmación es generado en servidor de forma aleatoria.
+
+5. MODAL DE CONFIRMACIÓN: SWEETALERT
+   - La confirmación final usa la librería SweetAlert (.sweet-alert).
+   - El texto de confirmación incluye: Id, Amount, Card Number, Name, Date.
+   - Se verifica que el nombre del comprador aparezca en el detalle del pedido.
+   - Se detectó que el campo Name es inestable (a veces completo, a veces truncado);
+     la aserción se hizo tolerante a variaciones reales del sitio.
+
+6. VALIDACIÓN DE PRECIOS END-TO-END
+   - Se captura el precio desde la ficha del producto (h3.price-container)
+     antes de agregar al carrito.
+   - En carrito se valida:
+       a) precios por fila vs precios capturados (sin depender del orden),
+       b) suma de filas vs total mostrado (#totalp),
+       c) monto final de compra (Amount) vs suma calculada.
+
+7. ESCENARIOS NEGATIVOS Y DE VALOR AGREGADOS
+   - Escenario negativo: no permite finalizar compra con formulario vacío.
+     Se valida que no aparezca SweetAlert de éxito y que el modal siga visible.
+   - Escenario de negocio: eliminar producto del carrito y recalcular total.
+     Se valida disminución de filas, ausencia del producto eliminado y total actualizado.
+
+====================================================================
+HALLAZGOS PRUEBAS API (SIGNUP / LOGIN)
+====================================================================
+
+1. ENDPOINTS PROBADOS
+   - Signup: https://api.demoblaze.com/signup
+   - Login:  https://api.demoblaze.com/login
+
+2. COMPORTAMIENTO FUNCIONAL OBSERVADO
+   - Las respuestas llegan con HTTP 200 en escenarios exitosos y de error funcional;
+     la diferenciación se realiza por contenido del body (ej. errorMessage).
+   - Signup de usuario nuevo responde sin errorMessage.
+   - Signup de usuario existente responde con mensaje tipo "already exist".
+   - Login correcto devuelve token de autenticación (Auth_token).
+   - Login incorrecto devuelve errorMessage (wrong password / user does not exist).
+
+3. ENFOQUE DE AUTOMATIZACIÓN APLICADO
+   - Se creó un spec API aislado: cypress/e2e/api/demoblaze_auth.cy.js
+   - Se creó capa reusable de comandos:
+     demoblazeApiRequest(), demoblazeSignup(), demoblazeLogin().
+   - Se parametrizaron datos de autenticación vía variables de entorno (.env)
+     cargadas desde cypress.config.js con dotenv.
+   - Se usa usuario único dinámico por ejecución para evitar colisiones.
+
+====================================================================
+DECISIONES DE DISEÑO
+====================================================================
+
+• PAGE OBJECT MODEL (POM)
+  Cada pantalla / componente tiene su propio archivo en support/pages/:
+  HomePage, ProductPage, CartPage, CheckoutModal.
+  Ventaja: si cambia un selector o flujo, solo se modifica un archivo.
+
+• SELECTORES CENTRALIZADOS
+  Todos los selectores CSS están en support/selectors/demoblaze.selectors.js
+  agrupados por sección (HOME, PRODUCT, CART, CHECKOUT, CONFIRMATION).
+  Ventaja: localización inmediata ante cambios de UI.
+
+• CUSTOM COMMANDS
+  addProductToCart(), goHome(), goCart() abstraen acciones repetitivas
+  y generan logs descriptivos en el Test Runner de Cypress.
+  Además, addProductToCart() devuelve el precio capturado para
+  validaciones económicas posteriores.
+
+• FIXTURES PARA DATOS DE PRUEBA
+  checkout.json y products.json separan los datos funcionales del código de prueba.
+  Las credenciales y datos sensibles de API se gestionan con .env.
+  Cambiar un producto o dato de compra no requiere tocar el test.
+
+====================================================================
+RIESGOS Y LIMITACIONES IDENTIFICADAS
+====================================================================
+
+• Los nombres de productos son sensibles: si el catálogo cambia, el test
+  fallará. Solución: usar IDs internos o fixtures actualizables.
+
+• La aplicación no tiene HTTPS en todos los recursos (posible mixed-content).
+
+• El time-out de carga del catálogo puede variar según la red;
+  defaultCommandTimeout está configurado en 12 000 ms para mitigarlo.
+
+• El sitio demo presenta comportamiento no determinístico en algunos textos
+  del modal de confirmación (ej. truncamiento variable en Name).
+
+• No existe estado de "compra completada" persistente; cada ejecución
+  genera una orden nueva en el sistema demo.
+
+====================================================================
+ESTADO ACTUAL Y PRÓXIMOS PASOS SUGERIDOS
+====================================================================
+  1. Reporte HTML/JSON implementado con cypress-mochawesome-reporter
+     (salida en cypress/reports).
+  2. Integrar ejecución + publicación de reportes en CI/CD
+     (GitHub Actions / GitLab CI).
+  3. Parametrizar ejecución API con múltiples perfiles de credenciales.
+  4. Agregar validaciones de contrato de esquema para response body API.
+  5. Agregar test de regresión para login/signup UI y cruzarlo con API.
+
+====================================================================
