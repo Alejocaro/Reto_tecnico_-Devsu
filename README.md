@@ -1,7 +1,12 @@
-# Prueba Tecnica QA
+# Prueba Técnica QA — Reto Devsu
 
-Automatizacion E2E y API con Cypress sobre [demoblaze.com](https://www.demoblaze.com), siguiendo buenas practicas de proyecto (POM + comandos reutilizables + fixtures + reporter).  
-Incluye escenarios positivos/negativos, validaciones de precios y pruebas de servicios de autenticacion.
+**Autor:** [Alejandro Caro Gómez](https://github.com/Alejocaro)  
+**Repositorio:** [Reto_tecnico_-Devsu](https://github.com/Alejocaro/Reto_tecnico_-Devsu)
+
+Automatización E2E y API con Cypress sobre [demoblaze.com](https://www.demoblaze.com), siguiendo buenas prácticas de proyecto (POM + comandos reutilizables + fixtures + reporter).  
+Incluye escenarios positivos/negativos, validaciones de precios y pruebas de servicios de autenticación.
+
+> Proyecto de autoría propia desarrollado como reto técnico de QA.
 
 ## Alcance
 
@@ -14,10 +19,11 @@ Incluye escenarios positivos/negativos, validaciones de precios y pruebas de ser
 - npm >= 9.x
 - Google Chrome (recomendado para Cypress)
 
-## Instalacion
+## Instalación
 
 ```bash
-cd PruebaTecnica
+git clone https://github.com/Alejocaro/Reto_tecnico_-Devsu.git
+cd Reto_tecnico_-Devsu
 npm install
 ```
 
@@ -64,14 +70,20 @@ npm run test:all:report
 
 ## Abrir reporte HTML
 
+Tras ejecutar `npm run cy:run:report`, abre el archivo:
+
+`cypress/reports/index.html`
+
+En Windows:
+
 ```bash
-open "/Users/alejandro.caro/PruebaTecnica/cypress/reports/index.html"
+start cypress/reports/index.html
 ```
 
 ## Estructura del proyecto
 
 ```text
-PruebaTecnica/
+Reto_tecnico_-Devsu/
 ├── cypress/
 │   ├── e2e/
 │   │   ├── api/
@@ -132,3 +144,10 @@ PruebaTecnica/
 - `cypress/videos/`: video de ejecucion en modo headless.
 - `cypress/screenshots/`: capturas automaticas ante fallo.
 - `cypress/reports/`: reporte HTML/JSON (Mochawesome).
+
+---
+
+## Autor
+
+**Alejandro Caro Gómez** — QA Automation Engineer  
+GitHub: [@Alejocaro](https://github.com/Alejocaro)
